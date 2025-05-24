@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import MemberCard from "./MemberCard";
 import stringSimilarity from "string-similarity";
+import { XMLParser } from "fast-xml-parser";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -31,11 +32,28 @@ const MemberList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(
-          "https://itpk-member-app.onrender.com/api/members"
-        );
-        const data = await res.json();
-        const conventusList = data.conventus?.medlemmer?.medlem || [];
+        const apiKey =
+          "jHgcxKcct0egiOj7ghMy6dv0nTFwZnN0VUcivelOdpVm55jacVz8ZU8cECzuQdtC";
+        const url = `https://www.conventus.dk/dataudv/api/adressebog/get_medlemmer.php?forening=16009&key=${apiKey}&id=4388768&type=medlem`;
+
+        const response = await fetch(url, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (React app)",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const xmlText = await response.text();
+
+        // parse XML to JSON
+        const parser = new XMLParser();
+        const jsonData = parser.parse(xmlText);
+
+        // navigate to member list in JSON
+        const conventusList = jsonData?.conventus?.medlemmer?.medlem || [];
 
         const bookingRes = await fetch(
           "https://itpk-member-app.onrender.com/api/booking-members"
