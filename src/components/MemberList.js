@@ -31,12 +31,14 @@ const MemberList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/members");
+        const res = await fetch(
+          "https://itpk-member-app.onrender.com/api/members"
+        );
         const data = await res.json();
         const conventusList = data.conventus?.medlemmer?.medlem || [];
 
         const bookingRes = await fetch(
-          "http://localhost:5000/api/booking-members"
+          "https://itpk-member-app.onrender.com/api/booking-members"
         );
         const bookingList = await bookingRes.json();
 
