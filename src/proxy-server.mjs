@@ -16,7 +16,7 @@ const MEMBERS_URL =
 const CLIENT_CREDENTIALS = Buffer.from("3:thebookingportal").toString("base64");
 
 app.get("/api/members", async (req, res) => {
-  const conventusKey = process.env.conventus;
+  const conventusKey = "jHgcxKcct0egiOj7ghMy6dv0nTFwZnN0VUcivelOdpVm55jacVz8ZU8cECzuQdtC";
   const conventusUrl = `https://www.conventus.dk/dataudv/api/adressebog/get_medlemmer.php?forening=16009&key=${conventusKey}&id=4388768&type=medlem`;
 
   try {
@@ -40,8 +40,8 @@ app.get("/api/members", async (req, res) => {
 
 app.get("/api/booking-members", async (req, res) => {
   try {
-    const username = process.env.username;
-    const password = process.env.password;
+    const username = "api@itpk.dk";
+    const password = "ITPKAPI25";
 
     const tokenResponse = await axios.post(
       TOKEN_URL,

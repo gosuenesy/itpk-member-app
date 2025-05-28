@@ -5,7 +5,7 @@ import MemberGrid from "./MemberGrid";
 import PaginationControls from "./PaginationControls";
 import { useFilteredMembers } from "./useFilteredMembers";
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 6;
 
 const MemberList = () => {
   const [selectedTag, setSelectedTag] = useState("");

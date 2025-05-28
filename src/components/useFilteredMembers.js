@@ -15,11 +15,13 @@ export const useFilteredMembers = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("/api/members");
+        const res = await fetch("http://localhost:5000/api/members");
         const data = await res.json();
         const conventusList = data.conventus?.medlemmer?.medlem || [];
 
-        const bookingRes = await fetch("/api/booking-members");
+        const bookingRes = await fetch(
+          "http://localhost:5000/api/booking-members"
+        );
         const bookingList = await bookingRes.json();
 
         const bookingNames = bookingList.map((b) =>
