@@ -37,27 +37,41 @@ export const useFilteredMembers = ({
           const name = m.navn?.toLowerCase().trim();
           const email = m.email?.toLowerCase().trim();
 
-          const nameMatch = stringSimilarity.findBestMatch(name, bookingNames);
-          const emailMatch = stringSimilarity.findBestMatch(
-            email,
-            bookingEmails
-          );
+          let bestMatch = null;
+          let matchedIndex = null;
 
-          const nameRating = nameMatch.bestMatch.rating;
-          const emailRating = emailMatch.bestMatch.rating;
+          for (let i = 0; i < bookingList.length; i++) {
+            const booking = bookingList[i];
+            const fullName = `${booking.firstName} ${booking.lastName}`
+              .toLowerCase()
+              .trim();
+            const bookingEmail = booking.email?.toLowerCase().trim();
 
-          const hasBookingAccount = nameRating > 0.85 || emailRating > 0.9;
+            const nameMatch =
+              name &&
+              fullName &&
+              stringSimilarity.compareTwoStrings(name, fullName) > 0.9;
 
-          if (nameRating > 0.85)
-            matchedBookingIndices.add(nameMatch.bestMatchIndex);
-          if (emailRating > 0.9)
-            matchedBookingIndices.add(emailMatch.bestMatchIndex);
+            if (nameMatch) {
+              bestMatch = booking;
+              matchedBookingIndices.add(i);
+              break;
+            }
+          }
 
-          return { ...m, hasBookingAccount, onlyBooking: false };
+          if (matchedIndex !== null) {
+            matchedBookingIndices.add(matchedIndex);
+          }
+
+          return {
+            ...m,
+            hasBookingAccount: !!bestMatch,
+            onlyBooking: false,
+            bookingId: bestMatch?.id || null,
+          };
         });
 
         const bookingOnly = bookingList
-          .map((b, index) => ({ ...b, id: `booking-${index}` }))
           .filter((_, index) => !matchedBookingIndices.has(index))
           .map((b) => ({
             navn: `${b.firstName} ${b.lastName}`,
@@ -66,8 +80,8 @@ export const useFilteredMembers = ({
             individuel1: "",
             hasBookingAccount: true,
             onlyBooking: true,
+            bookingId: b.id,
           }));
-
         const combined = [...enriched, ...bookingOnly];
 
         const allTags = Array.from(

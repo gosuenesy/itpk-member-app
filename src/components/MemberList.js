@@ -7,7 +7,7 @@ import { useFilteredMembers } from "./useFilteredMembers";
 
 const ITEMS_PER_PAGE = 6;
 
-const MemberList = () => {
+const MemberList = ({ members }) => {
   const [selectedTag, setSelectedTag] = useState("");
   const [searchName, setSearchName] = useState("");
   const [searchCity, setSearchCity] = useState("");
@@ -31,7 +31,7 @@ const MemberList = () => {
   return (
     <Container maxWidth="lg" sx={{ pt: 4, pb: 6 }}>
       <Typography variant="h4" gutterBottom>
-        ITPK Members
+        Members
       </Typography>
       <Typography variant="subtitle1" sx={{ mb: 3 }}>
         Member Count: {filtered.length}
