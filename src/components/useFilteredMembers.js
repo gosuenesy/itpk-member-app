@@ -24,13 +24,6 @@ export const useFilteredMembers = ({
         );
         const bookingList = await bookingRes.json();
 
-        const bookingNames = bookingList.map((b) =>
-          `${b.firstName} ${b.lastName}`.toLowerCase().trim()
-        );
-        const bookingEmails = bookingList.map((b) =>
-          b.email?.toLowerCase().trim()
-        );
-
         const matchedBookingIndices = new Set();
 
         const enriched = conventusList.map((m) => {
@@ -50,11 +43,15 @@ export const useFilteredMembers = ({
             const nameMatch =
               name &&
               fullName &&
-              stringSimilarity.compareTwoStrings(name, fullName) > 0.9;
+              stringSimilarity.compareTwoStrings(name, fullName) > 0.85;
+            const emailMatch =
+              email &&
+              bookingEmail &&
+              stringSimilarity.compareTwoStrings(email, bookingEmail) > 0.9;
 
-            if (nameMatch) {
+            if (nameMatch || emailMatch) {
               bestMatch = booking;
-              matchedBookingIndices.add(i);
+              matchedIndex = i;
               break;
             }
           }
@@ -68,6 +65,7 @@ export const useFilteredMembers = ({
             hasBookingAccount: !!bestMatch,
             onlyBooking: false,
             bookingId: bestMatch?.id || null,
+            createdTs: bestMatch?.createdTs || bestMatch?.created || null,
           };
         });
 
@@ -81,7 +79,9 @@ export const useFilteredMembers = ({
             hasBookingAccount: true,
             onlyBooking: true,
             bookingId: b.id,
+            createdTs: b.createdTs || b.created || null,
           }));
+
         const combined = [...enriched, ...bookingOnly];
 
         const allTags = Array.from(
