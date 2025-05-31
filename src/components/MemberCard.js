@@ -16,6 +16,7 @@ const MemberCard = ({ member }) => {
     koen,
     hasBookingAccount,
     onlyBooking,
+    createdTs,
   } = member;
 
   const renderAvatarIcon = () => {
@@ -38,23 +39,24 @@ const MemberCard = ({ member }) => {
 
     if (hasBookingAccount) {
       return (
-        <Chip
-          label="Booking"
-          color="success"
-          size="small"
-          sx={{ mb: 0.5 }}
-        />
+        <Chip label="Booking" color="success" size="small" sx={{ mb: 0.5 }} />
       );
     }
 
     return (
-      <Chip
-        label="No Booking"
-        color="error"
-        size="small"
-        sx={{ mb: 0.5 }}
-      />
+      <Chip label="No Booking" color="error" size="small" sx={{ mb: 0.5 }} />
     );
+  };
+
+  const calculateAge = (birthDateString) => {
+    const birthDate = new Date(birthDateString);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
   };
 
   return (
@@ -90,7 +92,15 @@ const MemberCard = ({ member }) => {
         )}
         {birth && (
           <Typography variant="body2">
-            <strong>Birth Date:</strong> {birth}
+            <strong>Birth Date:</strong>{" "}
+            {new Date(birth).toLocaleDateString("da-DK")} ({calculateAge(birth)}{" "}
+            år)
+          </Typography>
+        )}
+        {createdTs && (
+          <Typography variant="body2">
+            <strong>Booking Creation Date:</strong>{" "}
+            {new Date(createdTs).toLocaleDateString("da-DK")}
           </Typography>
         )}
       </Stack>
