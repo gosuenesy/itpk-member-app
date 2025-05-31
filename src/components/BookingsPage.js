@@ -90,12 +90,9 @@ const BookingsPage = ({ members }) => {
   const tennisStats = getTopMembersByBookings(bookings, members, "tennis");
   const padelStats = getTopMembersByBookings(bookings, members, "padel");
 
-  const renderStatsSection = (title, icon, data) => (
+  const renderStatsSection = (title, data) => (
     <Card sx={{ p: 2 }}>
-      <Stack direction="row" alignItems="center" spacing={1} mb={1}>
-        {icon}
-        <Typography variant="h6">{title}</Typography>
-      </Stack>
+      <Typography variant="h6">{title}</Typography>
 
       {data.length === 0 ? (
         <Typography variant="body2" color="text.secondary">
@@ -126,7 +123,7 @@ const BookingsPage = ({ members }) => {
 
   const statsCard = (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <FormControl sx={{ mb: 1 }}>
+      {/* <FormControl sx={{ mb: 1 }}>
         <Select
           value={selectedStatSport}
           onChange={(e) => setSelectedStatSport(e.target.value)}
@@ -136,21 +133,13 @@ const BookingsPage = ({ members }) => {
           <MenuItem value="tennis">Tennis</MenuItem>
           <MenuItem value="padel">Padel</MenuItem>
         </Select>
-      </FormControl>
+      </FormControl> */}
 
       {(selectedStatSport === "all" || selectedStatSport === "tennis") &&
-        renderStatsSection(
-          "Top Tennis Members",
-          <SportsTennisIcon color="primary" />,
-          tennisStats
-        )}
+        renderStatsSection("Top Tennis Members", tennisStats)}
 
       {(selectedStatSport === "all" || selectedStatSport === "padel") &&
-        renderStatsSection(
-          "Top Padel Members",
-          <SportsTennisOutlinedIcon color="secondary" />,
-          padelStats
-        )}
+        renderStatsSection("Top Padel Members", padelStats)}
     </Box>
   );
 
@@ -302,13 +291,26 @@ const BookingsPage = ({ members }) => {
                     gap: 0.5,
                   }}
                 >
-                  <Typography
-                    variant="subtitle1"
-                    fontWeight="bold"
-                    gutterBottom
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={1}
+                    mb={0.5}
                   >
-                    {b.resources[0]?.name}
-                  </Typography>
+                    {b.resources[0]?.name?.toLowerCase().includes("tennis") ? (
+                      <SportsTennisIcon fontSize="small" color="success" />
+                    ) : b.resources[0]?.name
+                        ?.toLowerCase()
+                        .includes("padel") ? (
+                      <SportsTennisOutlinedIcon
+                        fontSize="small"
+                        color="primary"
+                      />
+                    ) : null}
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {b.resources[0]?.name}
+                    </Typography>
+                  </Stack>
 
                   <Stack direction="row" spacing={1} alignItems="center">
                     <AccessTimeIcon fontSize="small" />
