@@ -16,8 +16,8 @@ import {
   Container,
 } from "@mui/material";
 
-import MemberList from "./components/MemberList";
-import BookingsPage from "./components/BookingsPage";
+import MemberList from "./components/MemberPage/MemberList";
+import BookingsPage from "./components/BookingsPage/BookingsPage";
 import { useFilteredMembers } from "./components/useFilteredMembers";
 
 const darkTheme = createTheme({

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Typography, Container } from "@mui/material";
-import Filters from "./Filters";
+import Filters from "../Filters";
 import MemberGrid from "./MemberGrid";
-import PaginationControls from "./PaginationControls";
-import { useFilteredMembers } from "./useFilteredMembers";
+import PaginationControls from "../PaginationControls";
+import { useFilteredMembers } from "../useFilteredMembers";
 
 const ITEMS_PER_PAGE = 6;
 
