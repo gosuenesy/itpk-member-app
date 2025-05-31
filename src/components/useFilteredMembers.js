@@ -11,6 +11,18 @@ const isCacheValid = (timestamp) => {
   return diff < CACHE_EXPIRATION_MINUTES;
 };
 
+const normalizeName = (str) =>
+  str
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/ø/g, "o")
+    .replace(/æ/g, "ae")
+    .replace(/å/g, "a")
+    .replace(/ö/g, "o")
+    .replace(/ä/g, "a")
+    .toLowerCase()
+    .trim();
+
 export const useFilteredMembers = ({
   selectedTag,
   searchName,
@@ -47,16 +59,14 @@ export const useFilteredMembers = ({
         const matchedBookingIndices = new Set();
 
         const enriched = conventusList.map((m) => {
-          const name = m.navn?.toLowerCase().trim();
+          const name = normalizeName(m.navn);
 
           let bestMatch = null;
           let matchedIndex = null;
 
           for (let i = 0; i < bookingList.length; i++) {
             const booking = bookingList[i];
-            const fullName = `${booking.firstName} ${booking.lastName}`
-              .toLowerCase()
-              .trim();
+            const fullName = normalizeName(`${booking.firstName} ${booking.lastName}`);
 
             const nameMatch =
               name &&
