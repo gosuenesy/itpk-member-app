@@ -12,10 +12,16 @@ import {
   MenuItem,
   Select,
   Switch,
+  Stack,
+  Tooltip,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import dayjs from "dayjs";
 import { useTheme } from "@mui/material/styles";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import SportsTennisIcon from "@mui/icons-material/SportsTennis";
+import SportsTennisOutlinedIcon from "@mui/icons-material/SportsTennisOutlined";
 
 import Filters from "./Filters";
 import PaginationControls from "./PaginationControls";
@@ -30,6 +36,8 @@ const BookingsPage = ({ members }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showOnlySingles, setShowOnlySingles] = useState(false);
   const [sportFilter, setSportFilter] = useState("all");
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [selectedStatSport, setSelectedStatSport] = useState("all");
 
   const [searchName, setSearchName] = useState("");
   const [page, setPage] = useState(1);
@@ -82,29 +90,67 @@ const BookingsPage = ({ members }) => {
   const tennisStats = getTopMembersByBookings(bookings, members, "tennis");
   const padelStats = getTopMembersByBookings(bookings, members, "padel");
 
+  const renderStatsSection = (title, icon, data) => (
+    <Card sx={{ p: 2 }}>
+      <Stack direction="row" alignItems="center" spacing={1} mb={1}>
+        {icon}
+        <Typography variant="h6">{title}</Typography>
+      </Stack>
+
+      {data.length === 0 ? (
+        <Typography variant="body2" color="text.secondary">
+          No bookings
+        </Typography>
+      ) : (
+        <Box component="ul" sx={{ pl: 2, mb: 0 }}>
+          {data.map((entry, i) => (
+            <Box key={entry.bookingId} component="li" sx={{ mb: 0.5 }}>
+              <Tooltip title={`${entry.count} bookings`} arrow>
+                <Typography variant="body2">
+                  {i < 1 ? (
+                    <EmojiEventsIcon
+                      color="warning"
+                      fontSize="small"
+                      sx={{ verticalAlign: "middle", mr: 0.5 }}
+                    />
+                  ) : null}
+                  <strong>{i + 1}.</strong> {entry.navn} ({entry.count})
+                </Typography>
+              </Tooltip>
+            </Box>
+          ))}
+        </Box>
+      )}
+    </Card>
+  );
+
   const statsCard = (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <Card sx={{ p: 2 }}>
-        <Typography variant="h6" gutterBottom>
-          Top Tennis Members
-        </Typography>
-        {tennisStats.map((entry, i) => (
-          <Typography key={entry.bookingId}>
-            {i + 1}. {entry.navn} ({entry.count})
-          </Typography>
-        ))}
-      </Card>
+      <FormControl sx={{ mb: 1 }}>
+        <Select
+          value={selectedStatSport}
+          onChange={(e) => setSelectedStatSport(e.target.value)}
+          size="small"
+        >
+          <MenuItem value="all">All</MenuItem>
+          <MenuItem value="tennis">Tennis</MenuItem>
+          <MenuItem value="padel">Padel</MenuItem>
+        </Select>
+      </FormControl>
 
-      <Card sx={{ p: 2 }}>
-        <Typography variant="h6" gutterBottom>
-          Top Padel Members
-        </Typography>
-        {padelStats.map((entry, i) => (
-          <Typography key={entry.bookingId}>
-            {i + 1}. {entry.navn} ({entry.count})
-          </Typography>
-        ))}
-      </Card>
+      {(selectedStatSport === "all" || selectedStatSport === "tennis") &&
+        renderStatsSection(
+          "Top Tennis Members",
+          <SportsTennisIcon color="primary" />,
+          tennisStats
+        )}
+
+      {(selectedStatSport === "all" || selectedStatSport === "padel") &&
+        renderStatsSection(
+          "Top Padel Members",
+          <SportsTennisOutlinedIcon color="secondary" />,
+          padelStats
+        )}
     </Box>
   );
 
@@ -129,7 +175,13 @@ const BookingsPage = ({ members }) => {
     return matchByMember && matchByCount && matchBySport;
   });
 
-  const paginatedBookings = filteredBookings.slice(
+  const sortedBookings = [...filteredBookings].sort((a, b) => {
+    const aTime = new Date(a.startTs);
+    const bTime = new Date(b.startTs);
+    return sortDirection === "asc" ? aTime - bTime : bTime - aTime;
+  });
+
+  const paginatedBookings = sortedBookings.slice(
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
   );
@@ -180,7 +232,7 @@ const BookingsPage = ({ members }) => {
                 value={dayCount}
                 onChange={(e) => setDayCount(e.target.value)}
               >
-                {[1, 7, 14, 30, 60].map((val) => (
+                {[7, 14, 30, 60].map((val) => (
                   <MenuItem key={val} value={val}>
                     Next {val} days
                   </MenuItem>
@@ -207,6 +259,16 @@ const BookingsPage = ({ members }) => {
                 <MenuItem value="padel">Padel</MenuItem>
               </Select>
             </FormControl>
+            <FormControl sx={{ minWidth: 140 }}>
+              <Select
+                value={sortDirection}
+                onChange={(e) => setSortDirection(e.target.value)}
+                displayEmpty
+              >
+                <MenuItem value="asc">Oldest → Newest</MenuItem>
+                <MenuItem value="desc">Newest → Oldest</MenuItem>
+              </Select>
+            </FormControl>
           </Box>
 
           <Box
@@ -223,38 +285,77 @@ const BookingsPage = ({ members }) => {
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  height: "100%",
+                  height: 188,
                   p: 2,
-                  minHeight: 180,
+                  overflow: "hidden",
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  backgroundColor: "background.paper",
                 }}
                 elevation={3}
               >
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography variant="h6">{b.resources[0]?.name}</Typography>
-                  <Typography>
-                    {formatTime(b.startTs)} - {formatTime(b.endTs)}
-                  </Typography>
+                <CardContent
+                  sx={{
+                    flexGrow: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 0.5,
+                  }}
+                >
                   <Typography
+                    variant="subtitle1"
+                    fontWeight="bold"
+                    gutterBottom
+                  >
+                    {b.resources[0]?.name}
+                  </Typography>
+
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <AccessTimeIcon fontSize="small" />
+                    <Typography variant="body2" color="text.secondary">
+                      {formatTime(b.startTs)} - {formatTime(b.endTs)}
+                    </Typography>
+                  </Stack>
+
+                  <Typography
+                    variant="body2"
                     color="text.secondary"
-                    sx={{ whiteSpace: "normal", wordBreak: "break-word" }}
+                    sx={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
                   >
                     {b.infoText || null}
                   </Typography>
-                  {b.bookings.map((bk) => {
-                    const member = members.find(
-                      (m) =>
-                        m.bookingId?.toLowerCase() ===
-                        bk.accountId?.toLowerCase()
-                    );
-                    return (
-                      <Typography
-                        key={bk.id}
-                        color={member ? "text.primary" : "error"}
-                      >
-                        • {member?.navn || "Unknown"}
+
+                  <Box mt={1} sx={{ flexGrow: 1, overflowY: "auto" }}>
+                    {b.bookings.length > 0 ? (
+                      b.bookings.map((bk) => {
+                        const member = members.find(
+                          (m) =>
+                            m.bookingId?.toLowerCase() ===
+                            bk.accountId?.toLowerCase()
+                        );
+                        return (
+                          <Typography
+                            key={bk.id}
+                            variant="body2"
+                            color={member ? "text.primary" : "error"}
+                            noWrap
+                          >
+                            • {member?.navn || "Unknown"}
+                          </Typography>
+                        );
+                      })
+                    ) : (
+                      <Typography variant="body2" color="text.secondary">
+                        No members
                       </Typography>
-                    );
-                  })}
+                    )}
+                  </Box>
                 </CardContent>
               </Card>
             ))}
