@@ -11,6 +11,7 @@ import {
   FormControl,
   MenuItem,
   Select,
+  Switch,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import dayjs from "dayjs";
@@ -27,6 +28,8 @@ const BookingsPage = ({ members }) => {
   const [dayCount, setDayCount] = useState(7);
   const [bookings, setBookings] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [showOnlySingles, setShowOnlySingles] = useState(false);
+  const [sportFilter, setSportFilter] = useState("all");
 
   const [searchName, setSearchName] = useState("");
   const [page, setPage] = useState(1);
@@ -47,10 +50,13 @@ const BookingsPage = ({ members }) => {
 
   const formatTime = (timestamp) => dayjs(timestamp).format("DD.MM.YYYY HH:mm");
 
-  const getTopMembersByBookings = (bookings, members) => {
+  const getTopMembersByBookings = (bookings, members, keyword) => {
     const countMap = {};
 
     bookings.forEach((b) => {
+      const resourceName = b.resources?.[0]?.name?.toLowerCase() || "";
+      if (!resourceName.includes(keyword.toLowerCase())) return;
+
       b.bookings.forEach((bk) => {
         const id = bk.accountId?.toLowerCase();
         if (!id) return;
@@ -73,29 +79,55 @@ const BookingsPage = ({ members }) => {
       .slice(0, 10);
   };
 
+  const tennisStats = getTopMembersByBookings(bookings, members, "tennis");
+  const padelStats = getTopMembersByBookings(bookings, members, "padel");
+
   const statsCard = (
-    <Card sx={{ p: 2, minWidth: 250 }}>
-      <Typography variant="h6" gutterBottom>
-        Top Members by Bookings
-      </Typography>
-      {getTopMembersByBookings(bookings, members).map((entry, i) => (
-        <Typography key={entry.bookingId}>
-          {i + 1}. {entry.navn} ({entry.count})
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <Card sx={{ p: 2 }}>
+        <Typography variant="h6" gutterBottom>
+          Top Tennis Members
         </Typography>
-      ))}
-    </Card>
+        {tennisStats.map((entry, i) => (
+          <Typography key={entry.bookingId}>
+            {i + 1}. {entry.navn} ({entry.count})
+          </Typography>
+        ))}
+      </Card>
+
+      <Card sx={{ p: 2 }}>
+        <Typography variant="h6" gutterBottom>
+          Top Padel Members
+        </Typography>
+        {padelStats.map((entry, i) => (
+          <Typography key={entry.bookingId}>
+            {i + 1}. {entry.navn} ({entry.count})
+          </Typography>
+        ))}
+      </Card>
+    </Box>
   );
 
-  const filteredBookings = bookings.filter((b) =>
-    b.bookings.some((bk) => {
+  const filteredBookings = bookings.filter((b) => {
+    const matchByMember = b.bookings.some((bk) => {
       const member = members.find(
         (m) => m.bookingId?.toLowerCase() === bk.accountId?.toLowerCase()
       );
       return searchName
         ? member?.navn?.toLowerCase().includes(searchName.toLowerCase())
         : true;
-    })
-  );
+    });
+
+    const matchByCount = showOnlySingles ? b.bookings.length === 1 : true;
+
+    const sportName = b.resources[0]?.name?.toLowerCase() || "";
+    const matchBySport =
+      sportFilter === "all"
+        ? true
+        : sportName.includes(sportFilter.toLowerCase());
+
+    return matchByMember && matchByCount && matchBySport;
+  });
 
   const paginatedBookings = filteredBookings.slice(
     (page - 1) * ITEMS_PER_PAGE,
@@ -127,12 +159,8 @@ const BookingsPage = ({ members }) => {
           alignItems: "flex-start",
         }}
       >
-
         <Box sx={{ flex: 1 }}>
-          <Filters
-            searchName={searchName}
-            setSearchName={setSearchName}
-          />
+          <Filters searchName={searchName} setSearchName={setSearchName} />
 
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 2 }}>
             <FormControl sx={{ minWidth: 140 }}>
@@ -152,11 +180,31 @@ const BookingsPage = ({ members }) => {
                 value={dayCount}
                 onChange={(e) => setDayCount(e.target.value)}
               >
-                {[0, 7, 14, 21].map((val) => (
+                {[1, 7, 14, 30, 60].map((val) => (
                   <MenuItem key={val} value={val}>
                     Next {val} days
                   </MenuItem>
                 ))}
+              </Select>
+            </FormControl>
+            <FormControl sx={{ display: "flex", alignItems: "center" }}>
+              <Typography variant="body2" sx={{ mr: 1 }}>
+                Only 1 Member
+              </Typography>
+              <Switch
+                checked={showOnlySingles}
+                onChange={(e) => setShowOnlySingles(e.target.checked)}
+              />
+            </FormControl>
+            <FormControl sx={{ minWidth: 140 }}>
+              <Select
+                value={sportFilter}
+                onChange={(e) => setSportFilter(e.target.value)}
+                displayEmpty
+              >
+                <MenuItem value="all">All</MenuItem>
+                <MenuItem value="tennis">Tennis</MenuItem>
+                <MenuItem value="padel">Padel</MenuItem>
               </Select>
             </FormControl>
           </Box>
