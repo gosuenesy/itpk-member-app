@@ -15,7 +15,6 @@ import {
   Box,
   Container,
 } from "@mui/material";
-
 import MemberList from "./components/MemberPage/MemberList";
 import BookingsPage from "./components/BookingsPage/BookingsPage";
 import { useFilteredMembers } from "./components/useFilteredMembers";
@@ -46,9 +45,27 @@ const Navigation = () => {
     <AppBar position="static">
       <Container maxWidth="lg">
         <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            ITPK Admin
-          </Typography>
+          <Box
+            component={Link}
+            to="/"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              textDecoration: "none",
+              color: "inherit",
+            }}
+          >
+            <Box
+              component="img"
+              src="/itpk-member-app/ITPKlogo.png"
+              alt="ITPK Logo"
+              sx={{ height: 32, mr: 1, filter: "invert(1)" }}
+            />
+            <Typography variant="h6" noWrap>
+              ITPK Admin
+            </Typography>
+          </Box>
+
           <Box>
             <Button
               component={Link}
