@@ -19,6 +19,15 @@ import dayjs from "dayjs";
 
 const BOOKINGS_URL = "http://localhost:5000/api/bookings";
 const ITEMS_PER_PAGE = 6;
+const BOOKING_CACHE_KEY = "itpk-bookings-cache";
+const CACHE_EXPIRATION_MINUTES = 15;
+
+const isCacheValid = (timestamp) => {
+  const now = new Date();
+  const then = new Date(timestamp);
+  const diff = (now - then) / (1000 * 60);
+  return diff < CACHE_EXPIRATION_MINUTES;
+};
 
 const BookingsPage = ({ members }) => {
   const [daysAgo, setDaysAgo] = useState(0);
@@ -36,9 +45,22 @@ const BookingsPage = ({ members }) => {
 
   useEffect(() => {
     const fetchBookings = async () => {
+      const cacheKey = `${BOOKING_CACHE_KEY}-${daysAgo}-${dayCount}`;
+      const cached = JSON.parse(localStorage.getItem(cacheKey));
+      if (cached && isCacheValid(cached.timestamp)) {
+        setBookings(cached.data);
+        return;
+      }
+
       const date = dayjs().subtract(daysAgo, "day").format("YYYY-MM-DD");
       const res = await fetch(`${BOOKINGS_URL}?from=${date}&days=${dayCount}`);
       const data = await res.json();
+
+      localStorage.setItem(
+        cacheKey,
+        JSON.stringify({ data, timestamp: new Date() })
+      );
+
       setBookings(data);
     };
     fetchBookings();

@@ -1,5 +1,15 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import stringSimilarity from "string-similarity";
+
+const MEMBER_CACHE_KEY = "itpk-members-cache";
+const CACHE_EXPIRATION_MINUTES = 15;
+
+const isCacheValid = (timestamp) => {
+  const now = new Date();
+  const then = new Date(timestamp);
+  const diff = (now - then) / (1000 * 60);
+  return diff < CACHE_EXPIRATION_MINUTES;
+};
 
 export const useFilteredMembers = ({
   selectedTag,
@@ -15,6 +25,16 @@ export const useFilteredMembers = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const cached = JSON.parse(localStorage.getItem(MEMBER_CACHE_KEY));
+        if (cached && isCacheValid(cached.timestamp)) {
+          setMembers(cached.data);
+          setFiltered(cached.data);
+          setTags(
+            Array.from(new Set(cached.data.map((m) => m.individuel1).filter(Boolean)))
+          );
+          return;
+        }
+
         const res = await fetch("http://localhost:5000/api/members");
         const data = await res.json();
         const conventusList = data.conventus?.medlemmer?.medlem || [];
@@ -86,6 +106,11 @@ export const useFilteredMembers = ({
 
         const allTags = Array.from(
           new Set(combined.map((m) => m.individuel1).filter(Boolean))
+        );
+
+        localStorage.setItem(
+          MEMBER_CACHE_KEY,
+          JSON.stringify({ data: combined, timestamp: new Date() })
         );
 
         setTags(allTags);
