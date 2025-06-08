@@ -60,6 +60,7 @@ export const useFilteredMembers = ({
 
         const enriched = conventusList.map((m) => {
           const name = normalizeName(m.navn);
+          const email = m.email?.toLowerCase().trim();
 
           let bestMatch = null;
           let matchedIndex = null;
@@ -67,13 +68,16 @@ export const useFilteredMembers = ({
           for (let i = 0; i < bookingList.length; i++) {
             const booking = bookingList[i];
             const fullName = normalizeName(`${booking.firstName} ${booking.lastName}`);
+            const bookingEmail = booking.email?.toLowerCase().trim();
 
+            const emailMatch = email && bookingEmail && email === bookingEmail;
             const nameMatch =
+              !emailMatch &&
               name &&
               fullName &&
               stringSimilarity.compareTwoStrings(name, fullName) > 0.85;
 
-            if (nameMatch) {
+            if (emailMatch || nameMatch) {
               bestMatch = booking;
               matchedIndex = i;
               break;
