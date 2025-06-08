@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import stringSimilarity from "string-similarity";
 
 const MEMBER_CACHE_KEY = "itpk-members-cache";
@@ -13,7 +13,7 @@ const isCacheValid = (timestamp) => {
 
 const normalizeName = (str) =>
   str
-    .normalize("NFD")
+    ?.normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
     .replace(/ø/g, "o")
     .replace(/æ/g, "ae")
@@ -33,6 +33,7 @@ export const useFilteredMembers = ({
   const [members, setMembers] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [tags, setTags] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,6 +45,7 @@ export const useFilteredMembers = ({
           setTags(
             Array.from(new Set(cached.data.map((m) => m.individuel1).filter(Boolean)))
           );
+          setLoading(false);
           return;
         }
 
@@ -70,9 +72,12 @@ export const useFilteredMembers = ({
             const fullName = normalizeName(`${booking.firstName} ${booking.lastName}`);
             const bookingEmail = booking.email?.toLowerCase().trim();
 
-            const emailMatch = email && bookingEmail && email === bookingEmail;
+            const emailMatch =
+              email &&
+              bookingEmail &&
+              stringSimilarity.compareTwoStrings(email, bookingEmail) > 0.9;
+
             const nameMatch =
-              !emailMatch &&
               name &&
               fullName &&
               stringSimilarity.compareTwoStrings(name, fullName) > 0.85;
@@ -126,6 +131,8 @@ export const useFilteredMembers = ({
         setFiltered(combined);
       } catch (err) {
         console.error("Error fetching members:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -175,5 +182,5 @@ export const useFilteredMembers = ({
     bookingFilter,
   ]);
 
-  return { filtered, tags, setMembers };
+  return { filtered, tags, setMembers, loading };
 };

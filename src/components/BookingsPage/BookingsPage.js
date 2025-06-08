@@ -6,6 +6,7 @@ import {
   Drawer,
   IconButton,
   useMediaQuery,
+  CircularProgress,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useTheme } from "@mui/material/styles";
@@ -39,16 +40,20 @@ const BookingsPage = ({ members }) => {
   const [sortDirection, setSortDirection] = useState("asc");
   const [searchName, setSearchName] = useState("");
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   useEffect(() => {
     const fetchBookings = async () => {
+      setLoading(true);
       const cacheKey = `${BOOKING_CACHE_KEY}-${daysAgo}-${dayCount}`;
       const cached = JSON.parse(localStorage.getItem(cacheKey));
+
       if (cached && isCacheValid(cached.timestamp)) {
         setBookings(cached.data);
+        setLoading(false);
         return;
       }
 
@@ -62,7 +67,9 @@ const BookingsPage = ({ members }) => {
       );
 
       setBookings(data);
+      setLoading(false);
     };
+
     fetchBookings();
   }, [daysAgo, dayCount]);
 
@@ -124,48 +131,68 @@ const BookingsPage = ({ members }) => {
           Bookings
         </Typography>
         {isSmallScreen && (
-          <IconButton onClick={() => setDrawerOpen(true)}><MenuIcon /></IconButton>
+          <IconButton onClick={() => setDrawerOpen(true)}>
+            <MenuIcon />
+          </IconButton>
         )}
       </Box>
 
-      <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 4 }}>
-        <Box sx={{ flex: 1 }}>
-          <Filters searchName={searchName} setSearchName={setSearchName} />
-          <BookingFilters
-            daysAgo={daysAgo}
-            setDaysAgo={setDaysAgo}
-            dayCount={dayCount}
-            setDayCount={setDayCount}
-            showOnlySingles={showOnlySingles}
-            setShowOnlySingles={setShowOnlySingles}
-            sportFilter={sportFilter}
-            setSportFilter={setSportFilter}
-            sortDirection={sortDirection}
-            setSortDirection={setSortDirection}
-          />
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-              gap: 2,
-            }}
-          >
-            {paginated.map((b) => (
-              <BookingCard key={b.id} booking={b} members={members} />
-            ))}
-          </Box>
-          <PaginationControls
-            count={Math.ceil(filtered.length / ITEMS_PER_PAGE)}
-            page={page}
-            setPage={setPage}
-          />
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
+          <CircularProgress size={40} />
         </Box>
+      ) : (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            gap: 4,
+          }}
+        >
+          <Box sx={{ flex: 1 }}>
+            <Filters searchName={searchName} setSearchName={setSearchName} />
+            <BookingFilters
+              daysAgo={daysAgo}
+              setDaysAgo={setDaysAgo}
+              dayCount={dayCount}
+              setDayCount={setDayCount}
+              showOnlySingles={showOnlySingles}
+              setShowOnlySingles={setShowOnlySingles}
+              sportFilter={sportFilter}
+              setSportFilter={setSportFilter}
+              sortDirection={sortDirection}
+              setSortDirection={setSortDirection}
+            />
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                gap: 2,
+              }}
+            >
+              {paginated.map((b) => (
+                <BookingCard key={b.id} booking={b} members={members} />
+              ))}
+            </Box>
+            <PaginationControls
+              count={Math.ceil(filtered.length / ITEMS_PER_PAGE)}
+              page={page}
+              setPage={setPage}
+            />
+          </Box>
 
-        {!isSmallScreen && <Box sx={{ width: 300 }}><BookingStats stats={stats} /></Box>}
-      </Box>
+          {!isSmallScreen && (
+            <Box sx={{ width: 300 }}>
+              <BookingStats stats={stats} />
+            </Box>
+          )}
+        </Box>
+      )}
 
       <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-        <Box sx={{ width: 300, p: 2 }}><BookingStats stats={stats} /></Box>
+        <Box sx={{ width: 300, p: 2 }}>
+          <BookingStats stats={stats} />
+        </Box>
       </Drawer>
     </Container>
   );

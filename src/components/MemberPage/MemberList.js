@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { Typography, Container } from "@mui/material";
+import {
+  Typography,
+  Container,
+  CircularProgress,
+  Box,
+} from "@mui/material";
 import Filters from "../Filters";
 import MemberGrid from "./MemberGrid";
 import PaginationControls from "../PaginationControls";
@@ -7,7 +12,7 @@ import { useFilteredMembers } from "../useFilteredMembers";
 
 const ITEMS_PER_PAGE = 6;
 
-const MemberList = ({ members }) => {
+const MemberList = () => {
   const [selectedTag, setSelectedTag] = useState("");
   const [searchName, setSearchName] = useState("");
   const [searchCity, setSearchCity] = useState("");
@@ -15,7 +20,7 @@ const MemberList = ({ members }) => {
   const [bookingFilter, setBookingFilter] = useState("all");
   const [page, setPage] = useState(1);
 
-  const { filtered, tags } = useFilteredMembers({
+  const { filtered, tags, loading } = useFilteredMembers({
     selectedTag,
     searchName,
     searchCity,
@@ -53,12 +58,27 @@ const MemberList = ({ members }) => {
         }}
       />
 
-      <MemberGrid members={paginated} />
-      <PaginationControls
-        count={Math.ceil(filtered.length / ITEMS_PER_PAGE)}
-        page={page}
-        setPage={setPage}
-      />
+      {loading ? (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: 200,
+          }}
+        >
+          <CircularProgress size={50} />
+        </Box>
+      ) : (
+        <>
+          <MemberGrid members={paginated} />
+          <PaginationControls
+            count={Math.ceil(filtered.length / ITEMS_PER_PAGE)}
+            page={page}
+            setPage={setPage}
+          />
+        </>
+      )}
     </Container>
   );
 };
