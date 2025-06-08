@@ -43,7 +43,9 @@ export const useFilteredMembers = ({
           setMembers(cached.data);
           setFiltered(cached.data);
           setTags(
-            Array.from(new Set(cached.data.map((m) => m.individuel1).filter(Boolean)))
+            Array.from(
+              new Set(cached.data.map((m) => m.individuel1).filter(Boolean))
+            )
           );
           setLoading(false);
           return;
@@ -61,28 +63,49 @@ export const useFilteredMembers = ({
         const matchedBookingIndices = new Set();
 
         const enriched = conventusList.map((m) => {
-          const name = normalizeName(m.navn);
           const email = m.email?.toLowerCase().trim();
+          const conventusFirstName = normalizeName(m.navn?.split(" ")[0]);
+          const fullConventusName = normalizeName(m.navn);
 
           let bestMatch = null;
           let matchedIndex = null;
 
           for (let i = 0; i < bookingList.length; i++) {
             const booking = bookingList[i];
-            const fullName = normalizeName(`${booking.firstName} ${booking.lastName}`);
             const bookingEmail = booking.email?.toLowerCase().trim();
+            const bookingFirstName = normalizeName(booking.firstName);
+            const bookingFullName = normalizeName(
+              `${booking.firstName} ${booking.lastName}`
+            );
 
             const emailMatch =
               email &&
               bookingEmail &&
               stringSimilarity.compareTwoStrings(email, bookingEmail) > 0.9;
 
-            const nameMatch =
-              name &&
-              fullName &&
-              stringSimilarity.compareTwoStrings(name, fullName) > 0.85;
+            const firstNameMatch =
+              conventusFirstName &&
+              bookingFirstName &&
+              stringSimilarity.compareTwoStrings(
+                conventusFirstName,
+                bookingFirstName
+              ) > 0.85;
 
-            if (emailMatch || nameMatch) {
+            const fullNameMatch =
+              fullConventusName &&
+              bookingFullName &&
+              stringSimilarity.compareTwoStrings(
+                fullConventusName,
+                bookingFullName
+              ) > 0.85;
+
+            if (emailMatch && firstNameMatch) {
+              bestMatch = booking;
+              matchedIndex = i;
+              break;
+            }
+
+            if (!bestMatch && fullNameMatch) {
               bestMatch = booking;
               matchedIndex = i;
               break;
