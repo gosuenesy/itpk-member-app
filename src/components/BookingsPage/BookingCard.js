@@ -1,42 +1,38 @@
 import React from "react";
-import {
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  Stack,
-} from "@mui/material";
+import { Card, CardContent, Typography, Box, Stack } from "@mui/material";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import SportsTennisIcon from "@mui/icons-material/SportsTennis";
 import SportsTennisOutlinedIcon from "@mui/icons-material/SportsTennisOutlined";
 import dayjs from "dayjs";
 
-const formatTime = (ts) => dayjs(ts).format("DD.MM.YYYY HH:mm");
+const formatTimeDate = (ts) => dayjs(ts).format("DD.MM.YYYY");
+const formatTimeStart = (ts) => dayjs(ts).format("HH:mm");
+const formatTimeEnd = (ts) => dayjs(ts).format("HH:mm");
 
 const BookingCard = ({ booking, members }) => {
   const resourceName = booking.resources?.[0]?.name?.toLowerCase() || "";
 
-  const SportIcon = resourceName.includes("tennis")
-    ? <SportsTennisIcon fontSize="small" color="success" />
-    : resourceName.includes("padel")
-    ? <SportsTennisOutlinedIcon fontSize="small" color="primary" />
-    : null;
+  const SportIcon = resourceName.includes("tennis") ? (
+    <SportsTennisIcon fontSize="small" color="success" />
+  ) : resourceName.includes("padel") ? (
+    <SportsTennisOutlinedIcon fontSize="small" color="primary" />
+  ) : null;
 
   return (
     <Card
       sx={{
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
-        height: 188,
         p: 2,
-        overflow: "hidden",
         borderRadius: 2,
         boxShadow: 3,
         backgroundColor: "background.paper",
       }}
     >
-      <CardContent sx={{ flexGrow: 1, display: "flex", flexDirection: "column", gap: 0.5 }}>
+      <CardContent
+        sx={{ flexGrow: 1, display: "flex", flexDirection: "column", gap: 0.5 }}
+      >
         <Stack direction="row" alignItems="center" spacing={1} mb={0.5}>
           {SportIcon}
           <Typography variant="subtitle1" fontWeight="bold">
@@ -45,9 +41,16 @@ const BookingCard = ({ booking, members }) => {
         </Stack>
 
         <Stack direction="row" spacing={1} alignItems="center">
+          <CalendarMonthIcon fontSize="small" />
+          <Typography variant="body2" color="text.secondary">
+            {formatTimeDate(booking.startTs)}
+          </Typography>
+        </Stack>
+
+        <Stack direction="row" spacing={1} alignItems="center">
           <AccessTimeIcon fontSize="small" />
           <Typography variant="body2" color="text.secondary">
-            {formatTime(booking.startTs)} - {formatTime(booking.endTs)}
+            {formatTimeStart(booking.startTs)} - {formatTimeEnd(booking.endTs)}
           </Typography>
         </Stack>
 
@@ -69,7 +72,8 @@ const BookingCard = ({ booking, members }) => {
           {booking.bookings.length > 0 ? (
             booking.bookings.map((bk) => {
               const member = members.find(
-                (m) => m.bookingId?.toLowerCase() === bk.accountId?.toLowerCase()
+                (m) =>
+                  m.bookingId?.toLowerCase() === bk.accountId?.toLowerCase()
               );
               return (
                 <Typography
