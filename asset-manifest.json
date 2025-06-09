@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/itpk-member-app/static/css/main.e6c13ad2.css",
-    "main.js": "/itpk-member-app/static/js/main.bd2b8c6d.js",
+    "main.css": "/itpk-member-app/static/css/main.2effe9ca.css",
+    "main.js": "/itpk-member-app/static/js/main.82b9bfbd.js",
     "static/js/453.3818f4ee.chunk.js": "/itpk-member-app/static/js/453.3818f4ee.chunk.js",
     "index.html": "/itpk-member-app/index.html",
-    "main.e6c13ad2.css.map": "/itpk-member-app/static/css/main.e6c13ad2.css.map",
-    "main.bd2b8c6d.js.map": "/itpk-member-app/static/js/main.bd2b8c6d.js.map",
+    "main.2effe9ca.css.map": "/itpk-member-app/static/css/main.2effe9ca.css.map",
+    "main.82b9bfbd.js.map": "/itpk-member-app/static/js/main.82b9bfbd.js.map",
     "453.3818f4ee.chunk.js.map": "/itpk-member-app/static/js/453.3818f4ee.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.e6c13ad2.css",
-    "static/js/main.bd2b8c6d.js"
+    "static/css/main.2effe9ca.css",
+    "static/js/main.82b9bfbd.js"
   ]
 }
