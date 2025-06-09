@@ -16,6 +16,7 @@ import PaginationControls from "../PaginationControls";
 import BookingCard from "./BookingCard";
 import BookingStats from "./BookingStats";
 import BookingFilters from "./BookingFilters";
+import BookingCalendar from "./BookingCalendar";
 import dayjs from "dayjs";
 
 const BOOKINGS_URL = "http://localhost:5000/api/bookings";
@@ -122,7 +123,10 @@ const BookingsPage = ({ members }) => {
       : new Date(b.startTs) - new Date(a.startTs)
   );
 
-  const paginated = sorted.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const paginated = sorted.slice(
+    (page - 1) * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE
+  );
 
   return (
     <Container maxWidth="lg" sx={{ pt: 4 }}>
@@ -166,7 +170,11 @@ const BookingsPage = ({ members }) => {
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "1fr 1fr",
+                  md: "1fr 1fr 1fr",
+                },
                 gap: 2,
               }}
             >
@@ -182,14 +190,47 @@ const BookingsPage = ({ members }) => {
           </Box>
 
           {!isSmallScreen && (
-            <Box sx={{ width: 300 }}>
+            <Box
+              sx={{
+                width: 300,
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  boxShadow: 3,
+                  borderRadius: 2,
+                  overflow: "hidden",
+                  width: "fit-content",
+                  bgcolor: "background.paper",
+                }}
+              >
+                <BookingCalendar bookings={bookings} />
+              </Box>
               <BookingStats stats={stats} />
             </Box>
           )}
         </Box>
       )}
 
-      <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      >
+        <Box
+          sx={{
+            boxShadow: 3,
+            borderRadius: 2,
+            overflow: "hidden",
+            width: "fit-content",
+            bgcolor: "background.paper",
+          }}
+        >
+          <BookingCalendar bookings={bookings} />
+        </Box>
         <Box sx={{ width: 300, p: 2 }}>
           <BookingStats stats={stats} />
         </Box>
