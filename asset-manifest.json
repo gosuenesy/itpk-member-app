@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/itpk-member-app/static/css/main.2effe9ca.css",
-    "main.js": "/itpk-member-app/static/js/main.82b9bfbd.js",
+    "main.js": "/itpk-member-app/static/js/main.c6107fb6.js",
     "static/js/453.3818f4ee.chunk.js": "/itpk-member-app/static/js/453.3818f4ee.chunk.js",
     "index.html": "/itpk-member-app/index.html",
     "main.2effe9ca.css.map": "/itpk-member-app/static/css/main.2effe9ca.css.map",
-    "main.82b9bfbd.js.map": "/itpk-member-app/static/js/main.82b9bfbd.js.map",
+    "main.c6107fb6.js.map": "/itpk-member-app/static/js/main.c6107fb6.js.map",
     "453.3818f4ee.chunk.js.map": "/itpk-member-app/static/js/453.3818f4ee.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.2effe9ca.css",
-    "static/js/main.82b9bfbd.js"
+    "static/js/main.c6107fb6.js"
   ]
 }
