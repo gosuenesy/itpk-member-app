@@ -18,6 +18,7 @@ import BookingStats from "./BookingStats";
 import BookingFilters from "./BookingFilters";
 import BookingCalendar from "./BookingCalendar";
 import dayjs from "dayjs";
+import mockBookings from "../../mock/mockBookings";
 
 const BOOKINGS_URL = "http://localhost:5000/api/bookings";
 const ITEMS_PER_PAGE = 6;
@@ -48,27 +49,35 @@ const BookingsPage = ({ members }) => {
 
   useEffect(() => {
     const fetchBookings = async () => {
-      setLoading(true);
-      const cacheKey = `${BOOKING_CACHE_KEY}-${daysAgo}-${dayCount}`;
-      const cached = JSON.parse(localStorage.getItem(cacheKey));
+      try {
+        setLoading(true);
+        const cacheKey = `${BOOKING_CACHE_KEY}-${daysAgo}-${dayCount}`;
+        const cached = JSON.parse(localStorage.getItem(cacheKey));
 
-      if (cached && isCacheValid(cached.timestamp)) {
-        setBookings(cached.data);
+        if (cached && isCacheValid(cached.timestamp)) {
+          setBookings(cached.data);
+          setLoading(false);
+          return;
+        }
+
+        const date = dayjs().subtract(daysAgo, "day").format("YYYY-MM-DD");
+        const res = await fetch(
+          `${BOOKINGS_URL}?from=${date}&days=${dayCount}`
+        );
+        const data = await res.json();
+
+        localStorage.setItem(
+          cacheKey,
+          JSON.stringify({ data, timestamp: new Date() })
+        );
+
+        setBookings(data);
+      } catch (err) {
+        console.error("Error fetching bookings, using mock data:", err);
+        setBookings(mockBookings);
+      } finally {
         setLoading(false);
-        return;
       }
-
-      const date = dayjs().subtract(daysAgo, "day").format("YYYY-MM-DD");
-      const res = await fetch(`${BOOKINGS_URL}?from=${date}&days=${dayCount}`);
-      const data = await res.json();
-
-      localStorage.setItem(
-        cacheKey,
-        JSON.stringify({ data, timestamp: new Date() })
-      );
-
-      setBookings(data);
-      setLoading(false);
     };
 
     fetchBookings();

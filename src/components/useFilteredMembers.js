@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import stringSimilarity from "string-similarity";
+import mockMembers from "../mock/mockMembers";
 
 const MEMBER_CACHE_KEY = "itpk-members-cache";
 const CACHE_EXPIRATION_MINUTES = 15;
@@ -153,7 +154,14 @@ export const useFilteredMembers = ({
         setMembers(combined);
         setFiltered(combined);
       } catch (err) {
-        console.error("Error fetching members:", err);
+        console.error("Error fetching members, using mock data:", err);
+        setMembers(mockMembers);
+        setFiltered(mockMembers);
+        setTags(
+          Array.from(
+            new Set(mockMembers.map((m) => m.individuel1).filter(Boolean))
+          )
+        );
       } finally {
         setLoading(false);
       }
