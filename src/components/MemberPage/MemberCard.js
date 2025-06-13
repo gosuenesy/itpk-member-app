@@ -1,6 +1,26 @@
 import React from "react";
-import { Card, Typography, Avatar, Box, Stack, Chip } from "@mui/material";
-import { Male, Female, Person } from "@mui/icons-material";
+import {
+  Card,
+  Typography,
+  Avatar,
+  Box,
+  Stack,
+  Chip,
+  Divider,
+} from "@mui/material";
+import {
+  Male,
+  Female,
+  Person,
+  Email,
+  Home,
+  Phone,
+  CalendarToday,
+  Groups,
+  Group,
+  Badge,
+  SportsTennis,
+} from "@mui/icons-material";
 
 const MemberCard = ({ member }) => {
   const {
@@ -30,22 +50,20 @@ const MemberCard = ({ member }) => {
     if (onlyBooking) {
       return (
         <Chip
-          label="Booking without Conventus"
+          icon={<Group />}
+          label="Booking Only"
           color="warning"
           size="small"
-          sx={{ mb: 0.5 }}
         />
       );
     }
-
     if (hasBookingAccount) {
       return (
-        <Chip label="Booking" color="success" size="small" sx={{ mb: 0.5 }} />
+        <Chip icon={<Group />} label="Booking" color="success" size="small" />
       );
     }
-
     return (
-      <Chip label="No Booking" color="error" size="small" sx={{ mb: 0.5 }} />
+      <Chip icon={<Group />} label="No Booking" color="error" size="small" />
     );
   };
 
@@ -62,77 +80,96 @@ const MemberCard = ({ member }) => {
 
   return (
     <Card
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        height: "100%",
-        p: 2,
-      }}
+      sx={{ display: "flex", flexDirection: "column", height: "100%", p: 2 }}
       elevation={3}
     >
       <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
         <Avatar>{renderAvatarIcon()}</Avatar>
         <Box>
           <Typography variant="h6">{navn}</Typography>
-          {renderBookingChip()}
-          {email && <Typography variant="body2">{email}</Typography>}
+          <Box mt="auto" pt={0.5}>
+            <Stack
+              direction="row"
+              spacing={1.5}
+              justifyContent="flex-start"
+              alignItems="center"
+              flexWrap="wrap"
+            >
+              {renderBookingChip()}
+
+              {individuel1 && (
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Badge sx={{ fontSize: 16 }} />
+                  <Typography
+                    sx={{ fontSize: "0.75rem", color: "text.secondary" }}
+                  >
+                    {individuel1}
+                  </Typography>
+                </Stack>
+              )}
+              {individuel4 && (
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <SportsTennis sx={{ fontSize: 16 }} />
+                  <Typography
+                    sx={{ fontSize: "0.75rem", color: "text.secondary" }}
+                  >
+                    {individuel4}
+                  </Typography>
+                </Stack>
+              )}
+            </Stack>
+          </Box>
         </Box>
       </Box>
 
-      <Stack spacing={0.2}>
+      <Divider sx={{ mb: 2 }} />
+
+      <Stack spacing={0.8}>
+        {email && (
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Email sx={{ fontSize: 16 }} />
+            <Typography sx={{ fontSize: "0.8rem" }}>{email}</Typography>
+          </Stack>
+        )}
         {adresse1 && (
-          <Typography variant="body2">
-            {adresse1}, {postnr} {postnr_by}
-          </Typography>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Home sx={{ fontSize: 16 }} />
+            <Typography sx={{ fontSize: "0.8rem" }}>
+              {adresse1}, {postnr} {postnr_by}
+            </Typography>
+          </Stack>
         )}
         {mobil && (
-          <Typography variant="body2">
-            <strong>Phone:</strong> {mobil}
-          </Typography>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Phone sx={{ fontSize: 16 }} />
+            <Typography sx={{ fontSize: "0.8rem" }}>{mobil}</Typography>
+          </Stack>
         )}
         {birth && (
-          <Typography variant="body2">
-            <strong>Birth Date:</strong>{" "}
-            {new Date(birth).toLocaleDateString("da-DK")} ({calculateAge(birth)}{" "}
-            år)
-          </Typography>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <CalendarToday sx={{ fontSize: 16 }} />
+            <Typography sx={{ fontSize: "0.8rem" }}>
+              {new Date(birth).toLocaleDateString("da-DK")} (
+              {calculateAge(birth)} år)
+            </Typography>
+          </Stack>
         )}
         {createdTs && (
-          <Typography variant="body2">
-            <strong>Booking Creation Date:</strong>{" "}
-            {new Date(createdTs).toLocaleDateString("da-DK")}
-          </Typography>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Group sx={{ fontSize: 16 }} />
+            <Typography sx={{ fontSize: "0.8rem" }}>
+              {new Date(createdTs).toLocaleDateString("da-DK")}{" "}
+              {"(Booking Creation)"}
+            </Typography>
+          </Stack>
         )}
         {groupName && (
-          <Typography variant="body2">
-            <strong>Group:</strong> {groupName}
-          </Typography>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Groups sx={{ fontSize: 16 }} />
+            <Typography sx={{ fontSize: "0.8rem" }}>{groupName}</Typography>
+          </Stack>
         )}
       </Stack>
-
-      {(individuel1 || individuel4) && (
-        <Box mt={2}>
-          {individuel1 && (
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              display="block"
-            >
-              Type: {individuel1}
-            </Typography>
-          )}
-          {individuel4 && (
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              display="block"
-            >
-              Sport: {individuel4}
-            </Typography>
-          )}
-        </Box>
-      )}
     </Card>
   );
 };
