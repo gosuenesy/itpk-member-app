@@ -21,21 +21,16 @@ const getUtilizationMap = (bookings) => {
 
   bookings.forEach((b) => {
     const day = dayjs(b.startTs).format("YYYY-MM-DD");
-    const start = dayjs(b.startTs);
-    const end = dayjs(b.endTs);
-    const minutes = end.diff(start, "minute");
-
     if (!dayData[day]) {
-      dayData[day] = { totalMinutes: 0, count: 0 };
+      dayData[day] = { count: 0 };
     }
-
-    dayData[day].totalMinutes += minutes;
     dayData[day].count += 1;
   });
 
   const map = {};
-  Object.entries(dayData).forEach(([day, { totalMinutes, count }]) => {
-    const percent = Math.min(totalMinutes / 840, 1); // assume 14h = 840 min
+  Object.entries(dayData).forEach(([day, { count }]) => {
+    const totalMinutes = count * 60;
+    const percent = Math.min(totalMinutes / 840, 1); // 14 hours = 840 minutes
     map[day] = { percent, count };
   });
 
@@ -72,7 +67,7 @@ const BookingCalendar = ({ bookings }) => {
 
   return (
     <Box>
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 2, }}>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
         <ToggleButtonGroup
           value={selectedSport}
           exclusive
