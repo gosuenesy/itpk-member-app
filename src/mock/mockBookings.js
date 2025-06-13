@@ -1,7 +1,15 @@
-const mockBookings = Array.from({ length: 20 }).map((_, i) => {
+const mockBookings = Array.from({ length: 40 }).map((_, i) => {
   const numMembers = Math.floor(Math.random() * 4) + 1;
-  const start = new Date(2024, 9, (i % 30) + 1, 8 + (i % 5), 0);
-  const end = new Date(start.getTime() + 60 * 60 * 1000);
+
+  const randomDaysAhead = Math.floor(Math.random() * 8);
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() + randomDaysAhead);
+
+  const randomHour = 8 + Math.floor(Math.random() * 14);
+  startDate.setHours(randomHour, 0, 0, 0);
+
+  const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+
   const sport = i % 2 === 0 ? "Tennis" : "Padel";
 
   const bookings = Array.from({ length: numMembers }).map((_, j) => ({
@@ -11,8 +19,8 @@ const mockBookings = Array.from({ length: 20 }).map((_, i) => {
 
   return {
     id: `mock-booking-${i}`,
-    startTs: start.toISOString(),
-    endTs: end.toISOString(),
+    startTs: startDate.toISOString(),
+    endTs: endDate.toISOString(),
     resources: [{ name: sport }],
     bookings,
   };
