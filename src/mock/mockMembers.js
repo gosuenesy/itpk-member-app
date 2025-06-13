@@ -8,7 +8,7 @@ const groupNames = [
   "None",
 ];
 
-const mockMembers = Array.from({ length: 20 }).map((_, i) => {
+const mockMembers = Array.from({ length: 40 }).map((_, i) => {
   const hasBookingAccount = Math.random() > 0.3;
   const onlyBooking = hasBookingAccount && Math.random() > 0.5;
   const bookingId = hasBookingAccount ? `b-mock-${i}` : null;
@@ -17,7 +17,7 @@ const mockMembers = Array.from({ length: 20 }).map((_, i) => {
     : null;
 
   const groupName = groupNames[i % groupNames.length];
-  
+
   return {
     navn: `Mock Name ${i + 1}`,
     adresse1: `${i + 1} Mock Street`,
