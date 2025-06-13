@@ -1,5 +1,12 @@
 const tags = ["Tennis", "Padel", "Both", "None"];
 const genders = ["mand", "kvinde"];
+const groupNames = [
+  "Padel Betalt 2024",
+  "Tennis Betalt 2025",
+  "Udmeldte",
+  "Ledelsen",
+  "None",
+];
 
 const mockMembers = Array.from({ length: 20 }).map((_, i) => {
   const hasBookingAccount = Math.random() > 0.3;
@@ -9,6 +16,8 @@ const mockMembers = Array.from({ length: 20 }).map((_, i) => {
     ? new Date(2024, 9, i + 1).toISOString()
     : null;
 
+  const groupName = groupNames[i % groupNames.length];
+  
   return {
     navn: `Mock Name ${i + 1}`,
     adresse1: `${i + 1} Mock Street`,
@@ -24,6 +33,7 @@ const mockMembers = Array.from({ length: 20 }).map((_, i) => {
     onlyBooking,
     bookingId,
     createdTs,
+    groupName: groupName === "None" ? undefined : groupName,
   };
 });
 
