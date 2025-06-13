@@ -26,6 +26,7 @@ const normalizeName = (str) =>
 
 export const useFilteredMembers = ({
   selectedTag,
+  selectedGroup,
   searchName,
   searchCity,
   searchEmail,
@@ -34,6 +35,7 @@ export const useFilteredMembers = ({
   const [members, setMembers] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [tags, setTags] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,6 +50,11 @@ export const useFilteredMembers = ({
               new Set(cached.data.map((m) => m.individuel1).filter(Boolean))
             )
           );
+          setGroups(
+            Array.from(
+              new Set(cached.data.map((m) => m.groupName).filter(Boolean))
+            )
+          );
           setLoading(false);
           return;
         }
@@ -60,11 +67,11 @@ export const useFilteredMembers = ({
 
         const memberData = await res.json();
         const bookingList = await bookingRes.json();
-        const groups = groupsRes.ok
+        const groupsList = groupsRes.ok
           ? (await groupsRes.json()).conventus?.grupper?.gruppe || []
           : [];
 
-        const groupIds = groups.map((g) => g.id).join(",");
+        const groupIds = groupsList.map((g) => g.id).join(",");
         const groupMembersRes = await fetch(
           `http://localhost:5000/api/group-members?grupper=${groupIds}`
         );
@@ -80,20 +87,18 @@ export const useFilteredMembers = ({
           groupMembersData.conventus?.relationer?.gruppe
         )
           ? groupMembersData.conventus.relationer.gruppe
-          : [groupMembersData.conventus.relationer.gruppe];
+          : [groupMembersData.conventus.relationer?.gruppe].filter(Boolean);
 
         relationGroups.forEach((groupEntry) => {
           const groupId = groupEntry.id;
-          const group = groups.find((g) => g.id === groupId);
+          const group = groupsList.find((g) => g.id == groupId);
           const groupTitle = group?.titel;
-
-          // 👉 Extract correct list of member IDs
-          const rawMembers = groupEntry.medlem?.medlem || []; // double medlem
+          const rawMembers = groupEntry.medlem?.medlem || [];
 
           const members = Array.isArray(rawMembers) ? rawMembers : [rawMembers];
 
           members.forEach((memberId) => {
-            const memberObj = conventusList.find((m) => m.id === memberId);
+            const memberObj = conventusList.find((m) => m.id == memberId);
             if (memberObj?.navn && groupTitle) {
               const normName = normalizeName(memberObj.navn);
               nameToGroupMap[normName] = groupTitle;
@@ -186,6 +191,9 @@ export const useFilteredMembers = ({
         const allTags = Array.from(
           new Set(combined.map((m) => m.individuel1).filter(Boolean))
         );
+        const allGroups = Array.from(
+          new Set(combined.map((m) => m.groupName).filter(Boolean))
+        );
 
         localStorage.setItem(
           MEMBER_CACHE_KEY,
@@ -193,6 +201,7 @@ export const useFilteredMembers = ({
         );
 
         setTags(allTags);
+        setGroups(allGroups);
         setMembers(combined);
         setFiltered(combined);
       } catch (err) {
@@ -202,6 +211,11 @@ export const useFilteredMembers = ({
         setTags(
           Array.from(
             new Set(mockMembers.map((m) => m.individuel1).filter(Boolean))
+          )
+        );
+        setGroups(
+          Array.from(
+            new Set(mockMembers.map((m) => m.groupName).filter(Boolean))
           )
         );
       } finally {
@@ -217,6 +231,10 @@ export const useFilteredMembers = ({
 
     if (selectedTag) {
       result = result.filter((m) => m.individuel1 === selectedTag);
+    }
+
+    if (selectedGroup) {
+      result = result.filter((m) => m.groupName === selectedGroup);
     }
 
     if (searchName) {
@@ -248,12 +266,13 @@ export const useFilteredMembers = ({
     setFiltered(result);
   }, [
     selectedTag,
+    selectedGroup,
     searchName,
     searchCity,
     searchEmail,
-    members,
     bookingFilter,
+    members,
   ]);
 
-  return { filtered, tags, setMembers, loading };
+  return { filtered, tags, groups, setMembers, loading };
 };

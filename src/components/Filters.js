@@ -20,6 +20,9 @@ const Filters = ({
   tags,
   bookingFilter,
   setBookingFilter,
+  selectedGroup,
+  setSelectedGroup,
+  groups,
 }) => (
   <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 2 }}>
     {searchName !== undefined && (
@@ -85,6 +88,24 @@ const Filters = ({
           <MenuItem value="with">With Booking</MenuItem>
           <MenuItem value="without">Without Booking</MenuItem>
           <MenuItem value="only">Booking Without Conventus</MenuItem>
+        </Select>
+      </FormControl>
+    )}
+
+    {selectedGroup !== undefined && setSelectedGroup && (
+      <FormControl size="small" fullWidth>
+        <InputLabel>Group Filter</InputLabel>
+        <Select
+          value={selectedGroup}
+          label="Group Filter"
+          onChange={(e) => setSelectedGroup(e.target.value)}
+        >
+          <MenuItem value="">All</MenuItem>
+          {groups?.map((group) => (
+            <MenuItem key={group} value={group}>
+              {group}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
     )}

@@ -14,14 +14,16 @@ const ITEMS_PER_PAGE = 6;
 
 const MemberList = () => {
   const [selectedTag, setSelectedTag] = useState("");
+  const [selectedGroup, setSelectedGroup] = useState("");
   const [searchName, setSearchName] = useState("");
   const [searchCity, setSearchCity] = useState("");
   const [searchEmail, setSearchEmail] = useState("");
   const [bookingFilter, setBookingFilter] = useState("all");
   const [page, setPage] = useState(1);
 
-  const { filtered, tags, loading } = useFilteredMembers({
+  const { filtered, tags, groups, loading } = useFilteredMembers({
     selectedTag,
+    selectedGroup,
     searchName,
     searchCity,
     searchEmail,
@@ -55,6 +57,9 @@ const MemberList = () => {
           tags,
           bookingFilter,
           setBookingFilter,
+          selectedGroup,
+          setSelectedGroup,
+          groups,
         }}
       />
 
