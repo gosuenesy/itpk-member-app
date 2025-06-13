@@ -52,16 +52,54 @@ export const useFilteredMembers = ({
           return;
         }
 
-        const res = await fetch("http://localhost:5000/api/members");
-        const data = await res.json();
-        const conventusList = data.conventus?.medlemmer?.medlem || [];
+        const [res, bookingRes, groupsRes] = await Promise.all([
+          fetch("http://localhost:5000/api/members"),
+          fetch("http://localhost:5000/api/booking-members"),
+          fetch("http://localhost:5000/api/groups"),
+        ]);
 
-        const bookingRes = await fetch(
-          "http://localhost:5000/api/booking-members"
-        );
+        const memberData = await res.json();
         const bookingList = await bookingRes.json();
+        const groups = groupsRes.ok
+          ? (await groupsRes.json()).conventus?.grupper?.gruppe || []
+          : [];
 
+        const groupIds = groups.map((g) => g.id).join(",");
+        const groupMembersRes = await fetch(
+          `http://localhost:5000/api/group-members?grupper=${groupIds}`
+        );
+        const groupMembersData = groupMembersRes.ok
+          ? await groupMembersRes.json()
+          : {};
+
+        const conventusList = memberData.conventus?.medlemmer?.medlem || [];
         const matchedBookingIndices = new Set();
+
+        const nameToGroupMap = {};
+        const relationGroups = Array.isArray(
+          groupMembersData.conventus?.relationer?.gruppe
+        )
+          ? groupMembersData.conventus.relationer.gruppe
+          : [groupMembersData.conventus.relationer.gruppe];
+
+        relationGroups.forEach((groupEntry) => {
+          const groupId = groupEntry.id;
+          const group = groups.find((g) => g.id === groupId);
+          const groupTitle = group?.titel;
+
+          // 👉 Extract correct list of member IDs
+          const rawMembers = groupEntry.medlem?.medlem || []; // double medlem
+
+          const members = Array.isArray(rawMembers) ? rawMembers : [rawMembers];
+
+          members.forEach((memberId) => {
+            const memberObj = conventusList.find((m) => m.id === memberId);
+            if (memberObj?.navn && groupTitle) {
+              const normName = normalizeName(memberObj.navn);
+              nameToGroupMap[normName] = groupTitle;
+            }
+          });
+        });
 
         const enriched = conventusList.map((m) => {
           const email = m.email?.toLowerCase().trim();
@@ -117,12 +155,16 @@ export const useFilteredMembers = ({
             matchedBookingIndices.add(matchedIndex);
           }
 
+          const normName = normalizeName(m.navn);
+          const groupName = nameToGroupMap[normName];
+
           return {
             ...m,
             hasBookingAccount: !!bestMatch,
             onlyBooking: false,
             bookingId: bestMatch?.id || null,
             createdTs: bestMatch?.createdTs || bestMatch?.created || null,
+            groupName,
           };
         });
 

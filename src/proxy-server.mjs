@@ -121,6 +121,58 @@ app.get("/api/bookings", async (req, res) => {
   }
 });
 
+app.get("/api/groups", async (req, res) => {
+  const conventusKey = process.env.conventus;
+  const url = `https://www.conventus.dk/dataudv/api/adressebog/get_grupper.php?forening=16009&key=${conventusKey}`;
+
+  try {
+    const response = await fetch(url, {
+      headers: { "User-Agent": "Mozilla/5.0 (Node.js proxy)" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Conventus responded with status ${response.status}`);
+    }
+
+    const xml = await response.text();
+    const parser = new XMLParser();
+    const json = parser.parse(xml);
+    res.json(json);
+  } catch (err) {
+    console.error("Groups API error:", err.message);
+    res.status(500).send("Group fetch failed: " + err.message);
+  }
+});
+
+app.get("/api/group-members", async (req, res) => {
+  const { groupId } = req.query;
+  const conventusKey = process.env.conventus;
+
+  if (!groupId) {
+    return res.status(400).send("Missing groupId parameter");
+  }
+
+  const url = `https://www.conventus.dk/dataudv/api/adressebog/get_grupper_medlemmer.php?forening=16009&key=${conventusKey}&grupper=${groupId}`;
+
+  try {
+    const response = await fetch(url, {
+      headers: { "User-Agent": "Mozilla/5.0 (Node.js proxy)" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Conventus responded with status ${response.status}`);
+    }
+
+    const xml = await response.text();
+    const parser = new XMLParser();
+    const json = parser.parse(xml);
+    res.json(json);
+  } catch (err) {
+    console.error("Group members API error:", err.message);
+    res.status(500).send("Group members fetch failed: " + err.message);
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Proxy server running on port ${PORT}`);
 });

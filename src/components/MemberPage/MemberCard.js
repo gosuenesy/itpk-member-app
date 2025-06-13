@@ -17,6 +17,7 @@ const MemberCard = ({ member }) => {
     hasBookingAccount,
     onlyBooking,
     createdTs,
+    groupName,
   } = member;
 
   const renderAvatarIcon = () => {
@@ -101,6 +102,11 @@ const MemberCard = ({ member }) => {
           <Typography variant="body2">
             <strong>Booking Creation Date:</strong>{" "}
             {new Date(createdTs).toLocaleDateString("da-DK")}
+          </Typography>
+        )}
+        {groupName && (
+          <Typography variant="body2">
+            <strong>Group:</strong> {groupName}
           </Typography>
         )}
       </Stack>
