@@ -1,11 +1,20 @@
-import React from "react";
-import { StaticDatePicker } from "@mui/x-date-pickers/StaticDatePicker";
-import { Box, Tooltip } from "@mui/material";
+import React, { useState, useMemo } from "react";
+import {
+  Box,
+  Tooltip,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
+  Stack,
+  Typography,
+} from "@mui/material";
+import { StaticDatePicker, PickersDay } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { green } from "@mui/material/colors";
-import { PickersDay } from "@mui/x-date-pickers";
+import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 
 const getUtilizationMap = (bookings) => {
   const dayData = {};
@@ -45,67 +54,103 @@ const getColorFromUtilization = (percent) => {
 };
 
 const BookingCalendar = ({ bookings }) => {
-  const utilizationMap = getUtilizationMap(bookings);
+  const [selectedSport, setSelectedSport] = useState("Padel");
+
+  const filteredBookings = useMemo(() => {
+    const sport = selectedSport.toLowerCase();
+
+    return bookings.filter((b) => {
+      const resourceNames = b.resources?.map((r) => r.name.toLowerCase()) || [];
+      return resourceNames.some((name) => name.includes(sport));
+    });
+  }, [bookings, selectedSport]);
+
+  const utilizationMap = useMemo(
+    () => getUtilizationMap(filteredBookings),
+    [filteredBookings]
+  );
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <StaticDatePicker
-        displayStaticWrapperAs="desktop"
-        openTo="day"
-        value={dayjs()}
-        readOnly
-        showToolbar={false}
-        onChange={() => {}} // required to suppress warnings
-        slots={{
-          textField: () => null,
-          day: (props) => {
-            const dateKey = props.day.format("YYYY-MM-DD");
-            const usage = utilizationMap[dateKey];
-            const bg = usage
-              ? getColorFromUtilization(usage.percent)
-              : "transparent";
-            const isLight = [
-              green[100],
-              green[200],
-              green[300],
-              green[400],
-              green[500],
-            ].includes(bg);
+    <Box>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 2, }}>
+        <ToggleButtonGroup
+          value={selectedSport}
+          exclusive
+          onChange={(e, newValue) => {
+            if (newValue !== null) setSelectedSport(newValue);
+          }}
+          size="small"
+        >
+          <ToggleButton value="Padel">Padel</ToggleButton>
+          <ToggleButton value="Tennis">Tennis</ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
 
-            const percentText = usage
-              ? `${Math.round(usage.percent * 100)}% booked`
-              : "";
-            const countText = usage
-              ? `${usage.count} booking${usage.count !== 1 ? "s" : ""}`
-              : "";
-            const tooltipText = usage ? `${percentText} — ${countText}` : "";
+      {filteredBookings.length === 0 ? (
+        <Typography variant="body2" sx={{ color: "gray", mb: 2 }}>
+          No bookings found for {selectedSport}.
+        </Typography>
+      ) : null}
 
-            return (
-              <Tooltip title={tooltipText} arrow disableInteractive>
-                <Box>
-                  <PickersDay
-                    {...props}
-                    sx={{
-                      backgroundColor: bg,
-                      borderRadius: 2,
-                      color: `${isLight ? "#000" : "#fff"} !important`,
-                      "&.Mui-selected": {
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <StaticDatePicker
+          displayStaticWrapperAs="desktop"
+          openTo="day"
+          value={dayjs()}
+          readOnly
+          showToolbar={false}
+          onChange={() => {}}
+          slots={{
+            textField: () => null,
+            day: (props) => {
+              const dateKey = props.day.format("YYYY-MM-DD");
+              const usage = utilizationMap[dateKey];
+              const bg = usage
+                ? getColorFromUtilization(usage.percent)
+                : "transparent";
+              const isLight = [
+                green[100],
+                green[200],
+                green[300],
+                green[400],
+                green[500],
+              ].includes(bg);
+
+              const percentText = usage
+                ? `${Math.round(usage.percent * 100)}% booked`
+                : "";
+              const countText = usage
+                ? `${usage.count} booking${usage.count !== 1 ? "s" : ""}`
+                : "";
+              const tooltipText = usage ? `${percentText} — ${countText}` : "";
+
+              return (
+                <Tooltip title={tooltipText} arrow disableInteractive>
+                  <Box>
+                    <PickersDay
+                      {...props}
+                      sx={{
                         backgroundColor: bg,
+                        borderRadius: 2,
                         color: `${isLight ? "#000" : "#fff"} !important`,
-                      },
-                      "&.MuiPickersDay-today": {
-                        border: "none",
-                      },
-                    }}
-                  />
-                </Box>
-              </Tooltip>
-            );
-          },
-        }}
-        dayOfWeekFormatter={(day) => day.format("dd").charAt(0)}
-      />
-    </LocalizationProvider>
+                        "&.Mui-selected": {
+                          backgroundColor: bg,
+                          color: `${isLight ? "#000" : "#fff"} !important`,
+                        },
+                        "&.MuiPickersDay-today": {
+                          border: "none",
+                        },
+                      }}
+                    />
+                  </Box>
+                </Tooltip>
+              );
+            },
+          }}
+          dayOfWeekFormatter={(day) => day.format("dd").charAt(0)}
+        />
+      </LocalizationProvider>
+    </Box>
   );
 };
 
