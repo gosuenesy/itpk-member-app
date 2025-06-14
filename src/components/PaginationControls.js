@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Pagination } from "@mui/material";
 
 const PaginationControls = ({ count, page, setPage }) => (
-  <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
+  <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
     <Pagination
       count={count}
       page={page}
