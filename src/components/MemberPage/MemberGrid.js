@@ -3,14 +3,19 @@ import { Grid, Container } from "@mui/material";
 import MemberCard from "./MemberCard";
 
 const MemberGrid = ({ members }) => (
-  <Container maxWidth="lg" sx={{ py: 4 }}>
+  <Container maxWidth="lg" sx={{ py: 2 }}>
     <Grid
       container
-      spacing={3}
       sx={{
         display: "grid",
-        gridTemplateColumns: "repeat(3, 1fr)",
-        gap: "24px",
+        gridTemplateColumns: {
+          xs: "1fr",
+          sm: "repeat(2, 1fr)",
+          md: "repeat(3, 1fr)",
+        },
+        gap: 3,
+        gridAutoRows: "auto", 
+        alignItems: "start", 
       }}
     >
       {members.map((member, i) => (
