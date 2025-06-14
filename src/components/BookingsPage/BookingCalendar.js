@@ -4,8 +4,15 @@ import { StaticDatePicker, PickersDay } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
+import "dayjs/locale/da";
+import localeData from "dayjs/plugin/localeData";
+import isoWeek from "dayjs/plugin/isoWeek";
 import { green } from "@mui/material/colors";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
+
+dayjs.extend(localeData);
+dayjs.extend(isoWeek);
+dayjs.locale("da");
 
 const getUtilizationMap = (bookings) => {
   const dayData = {};
@@ -78,9 +85,12 @@ const BookingCalendar = ({ bookings }) => {
         </Typography>
       ) : null}
 
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="da">
         <StaticDatePicker
           displayStaticWrapperAs="desktop"
+          dayOfWeekFormatter={(day) =>
+            ["Sø", "Ma", "Ti", "On", "To", "Fr", "Lø"][day.isoWeekday() % 7]
+          }
           openTo="day"
           value={dayjs()}
           readOnly
@@ -133,7 +143,6 @@ const BookingCalendar = ({ bookings }) => {
               );
             },
           }}
-          dayOfWeekFormatter={(day) => day.format("dd").charAt(0)}
         />
       </LocalizationProvider>
     </Box>
