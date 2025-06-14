@@ -31,6 +31,7 @@ export const useFilteredMembers = ({
   searchCity,
   searchEmail,
   bookingFilter,
+  bookingYear,
 }) => {
   const [members, setMembers] = useState([]);
   const [filtered, setFiltered] = useState([]);
@@ -263,6 +264,14 @@ export const useFilteredMembers = ({
       result = result.filter((m) => m.onlyBooking);
     }
 
+    if (bookingYear) {
+      result = result.filter((m) => {
+        if (!m.createdTs) return false;
+        const year = new Date(m.createdTs).getFullYear();
+        return year.toString() === bookingYear;
+      });
+    }
+
     setFiltered(result);
   }, [
     selectedTag,
@@ -271,6 +280,7 @@ export const useFilteredMembers = ({
     searchCity,
     searchEmail,
     bookingFilter,
+    bookingYear,
     members,
   ]);
 

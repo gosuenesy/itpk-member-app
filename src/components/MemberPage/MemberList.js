@@ -10,7 +10,7 @@ import MemberGrid from "./MemberGrid";
 import PaginationControls from "../PaginationControls";
 import { useFilteredMembers } from "../useFilteredMembers";
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 12;
 
 const MemberList = () => {
   const [selectedTag, setSelectedTag] = useState("");
@@ -19,6 +19,7 @@ const MemberList = () => {
   const [searchCity, setSearchCity] = useState("");
   const [searchEmail, setSearchEmail] = useState("");
   const [bookingFilter, setBookingFilter] = useState("all");
+  const [bookingYear, setBookingYear] = useState("");
   const [page, setPage] = useState(1);
 
   const { filtered, tags, groups, loading } = useFilteredMembers({
@@ -28,6 +29,7 @@ const MemberList = () => {
     searchCity,
     searchEmail,
     bookingFilter,
+    bookingYear
   });
 
   const paginated = filtered.slice(
@@ -40,7 +42,7 @@ const MemberList = () => {
       <Typography variant="h4" gutterBottom>
         Members
       </Typography>
-      <Typography variant="subtitle1" sx={{ mb: 3 }}>
+      <Typography variant="subtitle1" sx={{ mb: 2 }}>
         Member Count: {filtered.length}
       </Typography>
 
@@ -60,6 +62,8 @@ const MemberList = () => {
           selectedGroup,
           setSelectedGroup,
           groups,
+          bookingYear,
+          setBookingYear,
         }}
       />
 
